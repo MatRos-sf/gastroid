@@ -1,96 +1,43 @@
-from kivymd.uix.screenmanager import MDScreenManager
-from kivymd.uix.screen import MDScreen
 from kivymd.app import MDApp
-from kivy.lang.builder import Builder
+from kivy.utils import platform
+from kivy.uix.screenmanager import ScreenManager
 
-KV = """
-<ChoiceScreen>:
-    BoxLayout:
-        orientation: "vertical"
-        
-        BoxLayout:
-            size_hint_y: 0.1
-            canvas.before:
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-        
-        AnchorLayout:
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-    
-            BoxLayout:
-                orientation: "vertical"
-                size_hint: None, None
-                spacing: "10dp"
-                pos_hint: {"center_x": .5, "center_y": .5}
-                adaptive_size: True
-    
-                MDRaisedButton:
-                    text: "Waiter"
-                    on_release: app.root.current = "waiter"
-                    style: "filled"
+from screen.waiter import WaiterMenuScreen
+from screen.waiter.list_view import MenuListView, MenuItemListView
 
-                MDRaisedButton:
-                    text: "Chef"
-                    on_release: app.root.current = "chef"
-    
-                MDRaisedButton:
-                    text: "Cashier"
-                    on_release: app.root.current = "cashier"
-<WaiterScreen>:
-    BoxLayout:
-        orientation: "vertical"
-        MDRaisedButton:
-            text: "Back"
-            on_release: app.root.current = "choice"
-<ChefScreen>:
-    BoxLayout:
-        orientation: "vertical"
-        MDRaisedButton:
-            text: "Back"
-            on_release: app.root.current = "choice"
-<CashierScreen>:
-    BoxLayout:
-        orientation: "vertical"
-        MDRaisedButton:
-            text: "Back"
-            on_release: app.root.current = "choice"
-"""
-Builder.load_string(KV)
+from session import Session
 
-class ChoiceScreen(MDScreen):
-    pass
+if platform == "linux" or platform == "linux2":
+    from kivy.core.window import Window
+    Window.size = (300, 500)
 
+class Gastroid(MDApp):
+    def __init__(self, **kwargs):
+        self.session_data = Session()
+        super().__init__(**kwargs)
 
-class WaiterScreen(MDScreen):
-    pass
-
-
-class ChefScreen(MDScreen):
-    pass
-
-
-class CashierScreen(MDScreen):
-    pass
-
-
-class MainApp(MDApp):
     def build(self):
-        self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "BlueGray"
-        sm = MDScreenManager()
-        sm.add_widget(WaiterScreen(name="waiter"))
-        sm.add_widget(ChefScreen(name="chef"))
-        sm.add_widget(CashierScreen(name="cashier"))
-        sm.add_widget(ChoiceScreen(name="choice"))
-        sm.current = "choice"
+        self.theme_cls.material_style = "M2"
+        sm = ScreenManager()
+        # waiter screens
+        sm.add_widget(WaiterMenuScreen(name="waiter_menu"))
+        sm.add_widget(MenuListView(name="current_menu"))
+        sm.add_widget(MenuItemListView(name="menu_items"))
+
+        sm.current = "waiter_menu"
+
         return sm
+
+    def custom_change_screen(self, screen):
+        print("Current session:", self.session_data)
+        if self.root.current == "waiter_menu" and screen == "current_menu":
+            print("Update menu ...")
+            self.session_data.update_menu()
+
+        self.root.current = screen
+
+
 
 
 if __name__ == "__main__":
-    MainApp().run()
+    Gastroid().run()

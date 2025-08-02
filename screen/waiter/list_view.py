@@ -1,7 +1,7 @@
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.list import MDList, OneLineListItem
+from kivymd.uix.list import OneLineListItem
 
 KV = """
 <MenuListView>:
@@ -53,7 +53,7 @@ KV = """
                 id: scroll_menu
                 MDList:
                     id: menu
-    
+
 """
 Builder.load_string(KV)
 
@@ -88,7 +88,7 @@ class MenuListView(MDScreen):
     def go_back(self, obj):
         self.session_data = MDApp.get_running_app().session_data
         if self.session_data.order:
-            raise NotImplementedError()
+            raise NotImplementedError("You have an order. You can't go back to menu.")
 
         self.session_data.clear_position()
         self.manager.current = "waiter_menu"
@@ -104,7 +104,8 @@ class MenuItemListView(MDScreen):
         self.ids.menu_name.text = menu_type.title()
         for m in session_data.menu.get_items_by_menu(menu_type):
             self.ids.menu.add_widget(OneLineListItem(
-                text=m.name
+                text=m.name,
+                on_press=lambda x, m=m: self.on_press_item(m.id)
             ))
     def on_leave(self, *args):
         super().on_leave(*args)
@@ -116,3 +117,7 @@ class MenuItemListView(MDScreen):
         session_data.clear_position()
         app = MDApp.get_running_app()
         app.custom_change_screen("current_menu")
+
+    def on_press_item(self, item_id):
+        MDApp.get_running_app().session_data.target_item = item_id
+        MDApp.get_running_app().custom_change_screen("order_item")

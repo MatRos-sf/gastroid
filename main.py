@@ -4,7 +4,7 @@ from kivy.uix.screenmanager import ScreenManager
 
 from screen.waiter import WaiterMenuScreen
 from screen.waiter.list_view import MenuListView, MenuItemListView
-from screen.waiter.order_view import OrderItemScreen
+from screen.waiter.order_view import OrderItemScreen, SummaryOrderScreen
 
 from session import Session
 
@@ -25,6 +25,7 @@ class Gastroid(MDApp):
         sm.add_widget(MenuListView(name="current_menu"))
         sm.add_widget(MenuItemListView(name="menu_items"))
         sm.add_widget(OrderItemScreen(name="order_item"))
+        sm.add_widget(SummaryOrderScreen(name="summary_order"))
 
         sm.current = "waiter_menu"
 

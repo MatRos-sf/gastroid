@@ -88,7 +88,10 @@ class MenuListView(MDScreen):
     def go_back(self, obj):
         self.session_data = MDApp.get_running_app().session_data
         if self.session_data.order:
-            raise NotImplementedError("You have an order. You can't go back to menu.")
+            #MDApp.get_running_app().custom_change_screen("summary_order")
+            self.manager.current = "summary_order"
+            return
+            #raise NotImplementedError("You have an order. You can't go back to menu.")
 
         self.session_data.clear_position()
         self.manager.current = "waiter_menu"
